@@ -91,3 +91,19 @@ def test_get_watchlist_empty_returns_empty_list(app, sample_user):
     with app.app_context():
         result = get_watchlist(sample_user)
         assert result == []
+
+
+def test_add_to_watchlist_respects_explicit_public_false(
+    app, sample_user, sample_film
+):
+    """
+    Callers should be able to explicitly set public=False instead of
+    relying on the model's default.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(
+            user_id=sample_user,
+            film_id=sample_film,
+            public=False,
+        )
+        assert entry.public is False
