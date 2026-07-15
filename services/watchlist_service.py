@@ -20,7 +20,7 @@ def add_to_watchlist(user_id, film_id):
 
     Args:
         user_id (str): UUID of the user.
-        film_id (int): ID of the film. (Note: integer — pre-refactor)
+        film_id (str): UUID of the film.
 
     Returns:
         WatchlistEntry: The newly created entry.
@@ -34,22 +34,30 @@ def add_to_watchlist(user_id, film_id):
         raise FilmNotFoundError(f"No film found with id '{film_id}'")
 
     existing = WatchlistEntry.query.filter_by(
-        user_id=user_id, film_id=film_id
+        user_id=user_id,
+        film_id=film_id,
     ).first()
+
     if existing:
         raise AlreadyInWatchlistError(
             f"Film '{film_id}' is already on this user's watchlist"
         )
 
-    entry = WatchlistEntry(user_id=user_id, film_id=film_id)
+    entry = WatchlistEntry(
+        user_id=user_id,
+        film_id=film_id,
+    )
+
     db.session.add(entry)
     db.session.commit()
+
     return entry
 
 
 def get_watchlist(user_id):
     """
-    Return all films on a user's watchlist.
+    Return all films on a user's watchlist, sorted by date added
+    with the newest entries first.
 
     Args:
         user_id (str): UUID of the user.
@@ -66,6 +74,7 @@ def get_watchlist(user_id):
     )
 
     result = []
+
     for entry in entries:
         film_dict = entry.film.to_dict()
         film_dict["date_added"] = entry.date_added.isoformat()
