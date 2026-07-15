@@ -174,7 +174,6 @@ of the public default.
 is respected on the created entry.
 
 ## PR Description
-## PR Description
 
 **What this feature does:**
 Adds a watchlist feature to CineLog — a list of films a user wants to
@@ -198,18 +197,29 @@ optionally specifying `public` visibility), plus a
 1. Start the app: `python app.py`
 2. In a separate terminal, create test data via Flask shell:
 ```python
-   from app import create_app, db
-   from models import User, Film
-   app = create_app()
-   with app.app_context():
-       user = User(username="testuser", email="test@example.com")
-       film = Film(title="Paddington 2", year=2017, genre="Comedy")
-       db.session.add_all([user, film])
-       db.session.commit()
-       print("user_id:", user.id)
-       print("film_id:", film.id)
+from app import create_app, db
+from models import User, Film
+app = create_app()
+with app.app_context():
+    user = User(username="testuser", email="test@example.com")
+    film = Film(title="Paddington 2", year=2017, genre="Comedy")
+    db.session.add_all([user, film])
+    db.session.commit()
+    print("user_id:", user.id)
+    print("film_id:", film.id)
 ```
-3. Add a film: `curl -X POST http://127.0.0.1:5000/watchlist/<user_id>/add -H "Content-Type: application/json" -d '{"film_id": "<film_id>"}'` → expect 201.
-4. View the watchlist: `curl http://127.0.0.1:5000/watchlist/<user_id>` → expect the film with `date_added` and `public: true`.
-5. Remove it: `curl -X DELETE http://127.0.0.1:5000/watchlist/<user_id>/remove -H "Content-Type: application/json" -d '{"film_id": "<film_id>"}'` → expect 200.
-6. Run automated tests: `pytest tests/ -v` → expect 9 passed.
+3. Add a film:
+   `curl -X POST http://127.0.0.1:5000/watchlist/<user_id>/add -H "Content-Type: application/json" -d '{"film_id": "<film_id>"}'`
+   -> expect `201`
+4. View the watchlist:
+   `curl http://127.0.0.1:5000/watchlist/<user_id>`
+   -> expect the film with `date_added` and `public: true`
+5. Remove it:
+   `curl -X DELETE http://127.0.0.1:5000/watchlist/<user_id>/remove -H "Content-Type: application/json" -d '{"film_id": "<film_id>"}'`
+   -> expect `200`
+6. Run automated tests:
+   `pytest tests/ -v`
+   -> expect `9 passed`
+
+## Commit History Screenshot
+![commit history](git_log.png)
