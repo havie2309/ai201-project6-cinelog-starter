@@ -139,5 +139,39 @@ fix — all 5 tests passed, including the previously-broken
 before the fix). Also ran `git log --oneline --graph` to confirm the
 branch history remains linear with no merge commits introduced by me.
 
+## Stretch — remove_from_watchlist()
+**What I did:** Implemented `remove_from_watchlist(user_id, film_id)` in
+`services/watchlist_service.py`, following the same pattern as
+`remove_from_collection()` — checks for an existing entry via
+`filter_by(user_id, film_id).first()`, raises a new `NotInWatchlistError`
+if not found, otherwise deletes and commits. Added a corresponding
+`DELETE /watchlist/<user_id>/remove` route.
+**Tests:** Added two tests — one confirming successful removal, one
+confirming `NotInWatchlistError` is raised when the film isn't on the
+watchlist.
+
+## Stretch — Second test
+**What I did:** Added `test_get_watchlist_empty_returns_empty_list`, which
+verifies that `get_watchlist()` returns an empty list `[]` for a user with
+no watchlist entries, rather than raising an error or returning `None`.
+**Why I chose this case:** Every other test exercises a watchlist with at
+least one entry. An empty watchlist is the very first state a real user
+would encounter, and it's an easy case to get subtly wrong (e.g. returning
+`None` if the query result isn't handled, or the endpoint crashing on an
+empty list when building a response) — so it's worth covering explicitly
+even though the reviewer didn't request it.
+
+## Stretch — Visibility toggle
+**What I did:** Added a `public` parameter to `add_to_watchlist(user_id,
+film_id, public=True)`, so callers can explicitly set visibility instead
+of always relying on the `WatchlistEntry` model's default. The
+`POST /watchlist/<user_id>/add` endpoint now reads an optional `public`
+field from the request body (defaulting to `True` if omitted) and passes
+it through. This directly addresses the follow-up gap I noted in my
+Comment 4 response — previously there was no way for a caller to opt out
+of the public default.
+**Tests:** Added a test confirming that passing `public=False` explicitly
+is respected on the created entry.
+
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->
