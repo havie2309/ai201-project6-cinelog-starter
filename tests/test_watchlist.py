@@ -59,7 +59,7 @@ def test_add_to_watchlist_nonexistent_film_raises(app, sample_user):
     FilmNotFoundError, not a database integrity error.
     """
     with app.app_context():
-        fake_film_id = 999999
+        fake_film_id = "00000000-0000-0000-0000-000000000000"
 
         with pytest.raises(FilmNotFoundError):
             add_to_watchlist(user_id=sample_user, film_id=fake_film_id)
@@ -81,3 +81,13 @@ def test_remove_from_watchlist_not_present_raises(app, sample_user, sample_film)
     with app.app_context():
         with pytest.raises(NotInWatchlistError):
             remove_from_watchlist(user_id=sample_user, film_id=sample_film)
+
+
+def test_get_watchlist_empty_returns_empty_list(app, sample_user):
+    """
+    A user with no watchlist entries should receive an empty list, not an
+    error or null-like value.
+    """
+    with app.app_context():
+        result = get_watchlist(sample_user)
+        assert result == []
