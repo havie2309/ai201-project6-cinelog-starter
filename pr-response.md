@@ -112,9 +112,32 @@ sort could be added in a future enhancement, but it is outside the scope
 of this PR.
 
 ## Comment 6 — Rebase
-**What conflicted:**
-**How I resolved it:**
-**How I verified no conflict remains:**
+
+**What conflicted:** While `feature/watchlist` was open, `main` merged a
+refactor migrating `Film.id` (and related foreign keys) from `Integer` to
+UUID strings. My branch's `models.py` still defined `Film.id` as an
+auto-incrementing integer, and `WatchlistEntry.film_id` referenced that
+integer type. Because git could not detect a textual conflict between the
+two versions of `models.py` (the class ordering didn't overlap directly),
+the rebase completed without flagging a conflict — but it silently
+dropped the `WatchlistEntry` model entirely, since the post-refactor
+`main` version of `models.py` never had it.
+
+**How I resolved it:** I manually re-added the `WatchlistEntry` class to
+`models.py` after the rebase completed, using `db.String(36)` for
+`film_id` to match the new UUID foreign key on `Film.id`, instead of the
+old `db.Integer`. I also updated the docstring in
+`add_to_watchlist()` (in `services/watchlist_service.py`) to reflect that
+`film_id` is now a UUID string, and updated the fake film ID used in
+`test_add_to_watchlist_nonexistent_film_raises` from an integer
+placeholder to a UUID-formatted string, matching the convention used in
+`test_collection.py`.
+
+**How I verified no conflict remains:** Ran `pytest tests/ -v` after the
+fix — all 5 tests passed, including the previously-broken
+`test_watchlist.py` (which had failed to even import `WatchlistEntry`
+before the fix). Also ran `git log --oneline --graph` to confirm the
+branch history remains linear with no merge commits introduced by me.
 
 ## PR Description
 <!-- Written at the end — feature overview, design decisions, manual testing steps -->
