@@ -74,9 +74,42 @@ necessary follow-up work. Without that follow-up, users currently have no
 practical control over the privacy choice represented by the model.
 
 ## Comment 5 — Sort order
-**My position:**
-**Reasoning:**
-**Engagement with reviewer's point:**
+
+**My position:** I agree that watchlists should default to newest-first
+order using `date_added`, while alphabetical sorting could be offered
+later as an optional view.
+
+**Reasoning:** A watchlist is more similar to a queue of films a user
+intends to watch than a permanent reference catalog. Users are therefore
+likely to revisit it to remember what recently caught their interest or
+decide what to watch next. When a watchlist grows to dozens of films, the
+user may not remember the exact title of every item, but they are more
+likely to remember that they added a film recently. Sorting by
+`date_added` descending keeps those recent decisions visible and prevents
+newly added films from being buried elsewhere in the list based only on
+their title.
+
+The current data model also supports this interpretation. Each
+`WatchlistEntry` already stores a `date_added` timestamp, while the
+watchlist feature does not currently include a search or filtering
+mechanism designed for catalog-style lookup. That makes recency the
+stronger default for the behavior the existing implementation can support
+well.
+
+Alphabetical ordering is still useful when a user wants to check whether
+a specific film is already saved, especially for a large watchlist.
+However, that behavior would be better supported by a search feature or
+an optional alphabetical sort than by making alphabetical order the
+default.
+
+**Engagement with reviewer's point:** I agree with the reviewer's point
+that most users are likely to want recently added films first because
+that ordering matches the primary use of a watchlist as an active queue.
+I would change `get_watchlist()` from `.order_by(Film.title.asc())` to
+`.order_by(WatchlistEntry.date_added.desc())`, while keeping the existing
+join with `Film` for building the response data. An optional alphabetical
+sort could be added in a future enhancement, but it is outside the scope
+of this PR.
 
 ## Comment 6 — Rebase
 **What conflicted:**
